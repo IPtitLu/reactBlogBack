@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface as EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,17 +21,21 @@ class UserController extends AbstractController
         $this->hasher = $hasher;
     }
 
-    #[Route(path: '/register', name: 'app_register')]
+    #[Route(path: '/api/register', name: 'app_api_register')]
     public function Register(Request $request): void
     {
+        $data = json_decode($request->getContent(), true);
 
         $user = new User();
-        $user->setEmail($request->request->get('email'))
-            ->setPassword($this->hasher->hashPassword($user, $request->request->get('password')));
+        $user->setEmail($data['email'])
+            ->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         try {
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            echo 'success';
+            die;
         } catch (ORMException $e) {
             echo $e;
         }

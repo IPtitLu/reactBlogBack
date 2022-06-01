@@ -21,7 +21,7 @@ class Post
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $content;
 
-    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 

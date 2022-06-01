@@ -26,9 +26,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string')]
     private $password;
 
-    #[ORM\OneToOne(targetEntity: Post::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
     #[ORM\JoinColumn(nullable: true)]
-    private $post;
+    private $posts;
+
+    private $username;
+
+    public function __construct()
+    {
+        $this->roles = ['ROLE_USER'];
+    }
 
     public function getId(): ?int
     {
@@ -53,6 +60,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @see UserInterface
      */
     public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getUsername()
     {
         return (string) $this->email;
     }
@@ -100,14 +112,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getPost(): ?Post
+    public function getPosts(): ?Post
     {
-        return $this->post;
+        return $this->posts;
     }
 
-    public function setPost(?Post $post): self
+    public function setPost(?Post $posts): self
     {
-        $this->post = $post;
+        $this->posts = $posts;
 
         return $this;
     }
