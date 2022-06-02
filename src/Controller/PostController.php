@@ -7,6 +7,7 @@ use App\Repository\PostRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface as EntityManager;
 use Doctrine\ORM\Exception\ORMException;
+use http\Env\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,16 +29,23 @@ class PostController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route(path: '/api/create-post', name: 'app_create_post')]
+    #[Route(path: '/api/create-post', name: 'app_api_create_post')]
     public function create(Request $request): void
     {
         $data = json_decode($request->getContent(), true);
+
+        $tokenParts = explode(".", $data['token']);
+        $tokenPayload = base64_decode($tokenParts[1]);
+        $jwtPayload = json_decode($tokenPayload);
+        $username = $jwtPayload->username;
+
+        $user = $this->userRepository->findBy(['email' => $username]);
 
         $post = new Post();
 
         $post->setTitle($data['title'])
                 ->setContent($data['title'])
-                ->setUser($this->userRepository->find(1));
+                ->setUser($user[0]);
 
             try {
                 $this->entityManager->persist($post);
@@ -49,8 +57,9 @@ class PostController extends AbstractController
             }
     }
 
-    #[Route(path: '/posts', name: 'app_posts')]
-    public function getAll(Request $request) {
-        return $this->postRepository->findAll();
-    }
+//    #[Route(path: '/posts', name: 'app_api_posts')]
+//    public function getAll(): array
+//    {
+//        return $this->postRepository->findAll();
+//    }
 }

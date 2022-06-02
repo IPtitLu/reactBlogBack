@@ -64,7 +64,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getUsername()
+    public function getUsername(): string
     {
         return (string) $this->email;
     }
@@ -120,6 +120,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPost(?Post $posts): self
     {
         $this->posts = $posts;
+
+        return $this;
+    }
+
+    /**
+     * @param Post $posts
+     * @return $this
+     */
+    public function addPosts(Post $posts): self
+    {
+        if (!$this->posts->contains($posts)) {
+            $this->posts[] = $posts;
+            $posts->setUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Post $posts
+     * @return $this
+     */
+    public function removePosts(Post $posts): self
+    {
+        if ($this->posts->removeElement($posts)) {
+            if ($posts->getUser() === $this) {
+                $posts->setUser(null);
+            }
+        }
 
         return $this;
     }
